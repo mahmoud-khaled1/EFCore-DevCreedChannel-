@@ -13,5 +13,7 @@ namespace EFCore.Model
         public string Content { get;set; }
 
         public Blog Blog { get; set; }
+
+        public ICollection<Tag> Tags{ get; set; }
     }
 }

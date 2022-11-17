@@ -12,14 +12,13 @@ namespace EFCore
     public class ApplicationDbContext:DbContext
     {
 
-
-
         // our business Tables 
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<Tag>Tags { get; set; } 
 
         // Override this method to configure the database (and other options)
         // to be used for this context. This method is called for each instance
@@ -35,79 +34,106 @@ namespace EFCore
         //and to apply Fluent API instead of Data Annotation
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //Data Seeding for first time 
+            modelBuilder.Entity<Blog>()
+                .HasData(new Blog { Id = 8, Url = "www.google.com",CreateTime=new DateTime(2021,6,23,7,21,11),Rating=7 });
+
+           
+
+
             // we will move them to seperate file in folder Configurations
             // for clean code  
 
-            // This
-            modelBuilder.Entity<Blog>()
-                .Property(e => e.Url)
-                .IsRequired()
-                .HasMaxLength(50);
 
-            //OR This if we work from separate class 
-            // new BlogEntityTypeConfiguration().Configure(modelBuilder.Entity<Blog>());
-            //OR This
-            //modelBuilder.ApplyConfigurationsFromAssembly(typeof(BlogEntityTypeConfiguration).Assembly);
-            //----------------------
-            // To cahnge Table Name with Fluent API
-            modelBuilder.Entity<Blog>()
-                .ToTable("Blogss");
-            //----------------------
-            // To Change Schema Name with Fluent API
-            modelBuilder.Entity<Blog>()
-                .ToTable("Blog", schema: "blogging");
-            //----------------------
-            // any table will create with default Schema name blogging
-            modelBuilder.HasDefaultSchema("blogging");
-            //---------------------
-            // To ignore specific properity in table when created with Fluent API
-            modelBuilder.Entity<Blog>()
-                .Ignore(b => b.CreateTime);
-            //---------------------
-            //Change Column Name with Fluent API
-            modelBuilder.Entity<Blog>()
-                .Property(e => e.Url)
-                .HasColumnName("BlogUrl");
-            //----------------------
-            //Change Column Data Types with Fluent API
-            modelBuilder.Entity<Blog>()
-                .Property(e => e.Url)
-                .HasColumnType("varchar(150)");
-            //----------------------
-            //Change Column Data Types length with Fluent API
-            modelBuilder.Entity<Blog>()
-                .Property(e => e.Url)
-                .HasMaxLength(50);
-            //------------------------
-            // set Key for specific table with Fluent API 
-            modelBuilder.Entity<Book>()
-                .HasKey(b => b.Id);
-            //------------------------
-            //Set Composite Key  with Fluent API 
-            modelBuilder.Entity<Book>()
-                .HasKey(b => new { b.Name, b.Author });
-            //------------------------
-            //Set Default Value when insert into database and no value pass 
-            modelBuilder.Entity<Blog>()
-                .Property(b => b.Rating)
-                .HasDefaultValue(2);
+            //// This
+            //modelBuilder.Entity<Blog>()
+            //    .Property(e => e.Url)
+            //    .IsRequired()
+            //    .HasMaxLength(50);
 
-            modelBuilder.Entity<Blog>()
-                .Property(b => b.CreateTime)
-                .HasDefaultValue(DateTime.Now);
-            //------------------------
-            //Computed Columns with Fluent API
-            modelBuilder.Entity<Author>()
-                .Property(a => a.DisplayName)
-                .HasComputedColumnSql("[FName] + [LName]");
-            //------------------------
-            // Primary Key Default Value with Fluent API
-            // cause Data Type is byte is set in database as primary but not identity
-            // to solve this problem we can use Data Annotation or Fluent API 
-            modelBuilder.Entity<Category>()
-                .Property(c => c.Id)
-                .ValueGeneratedOnAdd();
+            ////OR This if we work from separate class 
+            //// new BlogEntityTypeConfiguration().Configure(modelBuilder.Entity<Blog>());
+            ////OR This
+            ////modelBuilder.ApplyConfigurationsFromAssembly(typeof(BlogEntityTypeConfiguration).Assembly);
+            ////----------------------
+            //// To cahnge Table Name with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .ToTable("Blogss");
+            ////----------------------
+            //// To Change Schema Name with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .ToTable("Blog", schema: "blogging");
+            ////----------------------
+            //// any table will create with default Schema name blogging
+            //modelBuilder.HasDefaultSchema("blogging");
+            ////---------------------
+            //// To ignore specific properity in table when created with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .Ignore(b => b.CreateTime);
+            ////---------------------
+            ////Change Column Name with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .Property(e => e.Url)
+            //    .HasColumnName("BlogUrl");
+            ////----------------------
+            ////Change Column Data Types with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .Property(e => e.Url)
+            //    .HasColumnType("varchar(150)");
+            ////----------------------
+            ////Change Column Data Types length with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .Property(e => e.Url)
+            //    .HasMaxLength(50);
+            ////------------------------
+            //// set Key for specific table with Fluent API 
+            //modelBuilder.Entity<Book>()
+            //    .HasKey(b => b.Id);
+            ////------------------------
+            ////Set Composite Key  with Fluent API 
+            //modelBuilder.Entity<Book>()
+            //    .HasKey(b => new { b.Name, b.Author });
+            ////------------------------
+            ////Set Default Value when insert into database and no value pass 
+            //modelBuilder.Entity<Blog>()
+            //    .Property(b => b.Rating)
+            //    .HasDefaultValue(2);
 
+            //modelBuilder.Entity<Blog>()
+            //    .Property(b => b.CreateTime)
+            //    .HasDefaultValue(DateTime.Now);
+            ////------------------------
+            ////Computed Columns with Fluent API
+            //modelBuilder.Entity<Author>()
+            //    .Property(a => a.DisplayName)
+            //    .HasComputedColumnSql("[FName] + [LName]");
+            ////------------------------
+            //// Primary Key Default Value with Fluent API
+            //// cause Data Type is byte is set in database as primary but not identity
+            //// to solve this problem we can use Data Annotation or Fluent API 
+            //modelBuilder.Entity<Category>()
+            //    .Property(c => c.Id)
+            //    .ValueGeneratedOnAdd();
+            ////-------------------------
+            ////if we didn't name ForeignKey with BlogId and want to name it anything other  with Fluent API
+            //// one to One RelationShip wiht Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .HasOne(b => b.BlogImage)
+            //    .WithOne(i => i.Blog)
+            //    .HasForeignKey<BlogImage>(b => b.BlogForeignKey);
+            ////-------------------------
+            //// one to Many RelationShip wiht Fluent API
+            //modelBuilder.Entity<Blog>()
+            //    .HasMany(b => b.Posts)
+            //    .WithOne();
+            //// same 
+            //modelBuilder.Entity<Post>()
+            //    .HasOne(p => p.Blog)
+            //    .WithMany(b => b.Posts);
+            ////-------------------------
+            //// Create Index with Fluent API
+            //modelBuilder.Entity<Blog>()
+            //.HasIndex(b => b.Url);
         }
 
 
